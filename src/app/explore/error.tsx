@@ -14,11 +14,6 @@ interface ExploreErrorProps {
 
 export default function ExploreError({ error, reset }: ExploreErrorProps) {
   useEffect(() => {
-    const win = typeof window !== "undefined" ? window : null;
-    if (win && "__SENTRY__" in win) {
-      const sentry = (win as Record<string, unknown>).__SENTRY__ as { captureException: (error: Error) => void };
-      sentry.captureException(error);
-    }
     console.error("[Explore Error]", error);
   }, [error]);
 
