@@ -253,6 +253,8 @@ export async function POST(req: NextRequest) {
 // ─── Error Handler ────────────────────────────────────────────────────────────
 
 function handleAiError(message: string): string {
+  console.error("[ROADMAP_ERROR]", message);
+  
   if (message.includes("quota") || message.includes("RESOURCE_EXHAUSTED")) {
     return "AI quota exceeded. Please check your Google AI API key billing.";
   }
@@ -262,10 +264,13 @@ function handleAiError(message: string): string {
   if (message.includes("HTTPS")) {
     return "Generated roadmap contains invalid URLs. Please try again.";
   }
-  if (message.includes("API key")) {
-    return "AI service not configured properly. Please check server configuration.";
+  if (message.includes("API key") || message.includes("unauthorized") || message.includes("Unauthorized")) {
+    return "AI API key is invalid or expired. Please update server configuration.";
   }
-  return "Failed to generate roadmap. Please try again.";
+  if (message.includes("No AI API configured")) {
+    return "AI service is not configured. Please ensure GROQ_API_KEY or GOOGLE_GENERATIVE_AI_API_KEY is set in server environment variables.";
+  }
+  return "Failed to generate roadmap. Please try again later.";
 }
 
 

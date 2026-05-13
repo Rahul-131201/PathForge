@@ -62,13 +62,13 @@ async function generateRoadmapWithAI({
   prompt: string;
   temperature: number;
 }) {
+  const isDev = process.env.NODE_ENV === "development";
+  
   try {
     // Primary: Use Groq (faster, cheaper)
     if (process.env.GROQ_API_KEY) {
       try {
-        if (process.env.NODE_ENV === "development") {
-          console.log("[AI_MODEL] Attempting Groq API (primary)...");
-        }
+        console.log("[AI_MODEL] Attempting Groq API (primary)...");
         return await generateObject({
           model: groq("mixtral-8x7b-32768"),
           schema,
@@ -77,35 +77,38 @@ async function generateRoadmapWithAI({
           temperature,
         });
       } catch (groqError) {
-        if (process.env.NODE_ENV === "development") {
-          console.log("[AI_MODEL] Groq failed, falling back to Gemini:", groqError);
-        }
+        console.error("[AI_MODEL] Groq failed:", groqError instanceof Error ? groqError.message : String(groqError));
         // Fall through to Gemini
       }
+    } else {
+      console.warn("[AI_MODEL] GROQ_API_KEY is not set");
     }
 
     // Fallback: Use Gemini
     if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-      if (process.env.NODE_ENV === "development") {
+      try {
         console.log("[AI_MODEL] Using Gemini API (fallback)...");
+        return await generateObject({
+          model: google("gemini-2.5-flash"),
+          schema,
+          system,
+          prompt,
+          temperature,
+        });
+      } catch (geminiError) {
+        console.error("[AI_MODEL] Gemini failed:", geminiError instanceof Error ? geminiError.message : String(geminiError));
+        throw geminiError;
       }
-      return await generateObject({
-        model: google("gemini-2.5-flash"),
-        schema,
-        system,
-        prompt,
-        temperature,
-      });
+    } else {
+      console.warn("[AI_MODEL] GOOGLE_GENERATIVE_AI_API_KEY is not set");
     }
 
     // Neither API is configured
     throw new Error(
-      "No AI API configured. Please set GROQ_API_KEY or GOOGLE_GENERATIVE_AI_API_KEY in environment."
+      "No AI API configured. Please set GROQ_API_KEY or GOOGLE_GENERATIVE_AI_API_KEY in environment variables."
     );
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("[AI_MODEL] All fallbacks failed:", error);
-    }
+    console.error("[AI_MODEL] All fallbacks failed:", error instanceof Error ? error.message : String(error));
     throw error;
   }
 }
