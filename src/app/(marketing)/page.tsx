@@ -1,5 +1,5 @@
 import LandingNavbar from "@/components/landing/navbar";
-import HeroSection from "@/components/landing/hero-section";
+import Neural3DHero from "@/components/landing/3d-neural-hero";
 import SocialProofSection from "@/components/landing/social-proof-section";
 import HowItWorksSection from "@/components/landing/how-it-works-section";
 import FeaturesGridSection from "@/components/landing/features-grid-section";
@@ -7,6 +7,7 @@ import InteractiveDemoSection from "@/components/landing/interactive-demo-sectio
 import TestimonialsSection from "@/components/landing/testimonials-section";
 import FinalCTASection from "@/components/landing/final-cta-section";
 import Footer from "@/components/landing/footer";
+import LandingBackground from "@/components/landing/landing-background";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -17,16 +18,18 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <main className="relative overflow-clip bg-background">
-      <LandingNavbar />
-      <HeroSection />
-      <SocialProofSection />
-      <HowItWorksSection />
-      <FeaturesGridSection />
-      <InteractiveDemoSection />
-      <TestimonialsSection />
-      <FinalCTASection />
-      <Footer />
-    </main>
+    <LandingBackground>
+      <main className="relative overflow-clip">
+        <LandingNavbar />
+        <Neural3DHero />
+        <SocialProofSection />
+        <HowItWorksSection />
+        <FeaturesGridSection />
+        <InteractiveDemoSection />
+        <TestimonialsSection />
+        <FinalCTASection />
+        <Footer />
+      </main>
+    </LandingBackground>
   );
 }
